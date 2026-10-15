@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090d18">
+<title>Nova AI — Asisten Serbaguna</title>
+<style>
+:root{--bg:#090d18;--panel:#111827;--panel2:#172033;--line:#273247;--text:#edf2ff;--muted:#98a5bd;--accent:#8b5cf6;--accent2:#06b6d4;--good:#34d399}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#17203b 0%,var(--bg) 55%);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1180px;margin:auto;min-height:100vh;display:grid;grid-template-columns:260px 1fr;gap:18px;padding:18px}
+.sidebar,.main{border:1px solid var(--line);background:rgba(17,24,39,.9);border-radius:22px;min-width:0}
+.sidebar{padding:18px;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;align-items:center;gap:11px;font-size:20px;font-weight:800;letter-spacing:.2px}
+.logo{width:40px;height:40px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 28px #8b5cf633;font-size:22px}
+.sub{font-size:12px;color:var(--muted);margin-top:-12px}
+.primary,.send{border:0;color:white;font-weight:700;background:linear-gradient(120deg,var(--accent),#5865e8);border-radius:12px;padding:12px 14px;box-shadow:0 7px 22px #6d5ce533}
+.side-label{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:800}
+.tools{display:grid;gap:7px}
+.tool{border:1px solid transparent;background:transparent;color:#cbd5e1;text-align:left;padding:10px 11px;border-radius:10px}
+.tool:hover,.tool.active{background:#202b42;border-color:#34425e;color:white}
+.tool span{display:inline-block;width:25px}
+.side-note{margin-top:auto;border:1px solid var(--line);background:#0c1322;padding:13px;border-radius:13px;color:var(--muted);font-size:12px}
+.main{display:flex;flex-direction:column;overflow:hidden;min-height:calc(100vh - 36px)}
+.topbar{padding:17px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.topbar strong{font-size:15px}.status{font-size:12px;color:var(--good);display:flex;gap:7px;align-items:center}.dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+.content{padding:24px;overflow-y:auto;flex:1}
+.welcome{max-width:760px;margin:5vh auto 25px;text-align:center}
+.welcome .orb{width:76px;height:76px;border-radius:26px;display:grid;place-items:center;margin:0 auto 20px;font-size:38px;background:linear-gradient(135deg,#8b5cf633,#06b6d433);border:1px solid #59618a}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:0 0 13px;letter-spacing:-1.2px}
+.gradient{background:linear-gradient(90deg,#c4b5fd,#67e8f9);color:transparent;background-clip:text}
+.welcome p{color:var(--muted);margin:0 auto 24px;max-width:560px}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;text-align:left}
+.card{padding:15px;background:#141e30;border:1px solid var(--line);border-radius:15px;color:var(--text);text-align:left;transition:.18s}
+.card:hover{transform:translateY(-2px);border-color:#6d65c8;background:#1a2540}
+.card b{display:block;margin:5px 0 3px}.card small{color:var(--muted)}
+.messages{display:grid;gap:18px;max-width:800px;margin:auto}
+.message{display:flex;gap:11px;align-items:flex-start}.avatar{flex:0 0 34px;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#25304a}
+.message.user .avatar{background:#4c3294}.bubble{min-width:0;max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;padding:12px 15px;border-radius:4px 15px 15px 15px;background:#172236;border:1px solid #27364d}
+.message.user .bubble{background:#252149;border-color:#423a77}.who{font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:800}
+.composer-wrap{padding:12px 20px 18px;border-top:1px solid var(--line);background:#101726}
+.composer{max-width:850px;margin:auto;border:1px solid #34425b;background:#0c1321;border-radius:17px;padding:10px;display:flex;gap:9px;align-items:flex-end}
+#prompt{flex:1;resize:vertical;min-height:44px;max-height:160px;background:transparent;border:0;outline:0;color:var(--text);padding:10px}
+#prompt::placeholder{color:#77859e}
+.attach{position:relative;overflow:hidden}.attach input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.iconbtn{border:1px solid var(--line);background:#192338;color:#dbe5f9;border-radius:10px;padding:10px 12px}
+.send{padding:11px 15px;border-radius:11px}
+.hint{text-align:center;color:#71809a;font-size:11px;margin:9px 0 0}
+.feature-panel{max-width:850px;margin:0 auto 18px;background:#121d30;border:1px solid var(--line);border-radius:15px;padding:16px}
+.feature-panel h2{margin:0 0 12px;font-size:19px}.field{display:grid;gap:6px;margin:10px 0}.field label{font-size:12px;color:var(--muted)}
+.field input,.field textarea,.field select{width:100%;background:#0a1220;border:1px solid #34425b;border-radius:10px;padding:11px;color:var(--text)}
+.action-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.result{margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1321;border:1px solid var(--line);border-radius:10px;padding:12px}
+footer{color:#71809a;text-align:center;font-size:11px;padding:0 12px 10px}
+@media(max-width:760px){.app{grid-template-columns:1fr;padding:9px;gap:9px}.sidebar{padding:12px;gap:12px}.brand{font-size:18px}.sidebar .sub,.side-note,.side-label{display:none}.tools{display:flex;overflow-x:auto}.tool{white-space:nowrap;padding:8px 10px}.sidebar .primary{width:100%}.main{min-height:75vh}.content{padding:16px}.welcome{margin:3vh auto 20px}.cards{grid-template-columns:1fr}.topbar{padding:13px 16px}.composer-wrap{padding:10px}.attach{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">✦</div><div>Nova AI<div class="sub">Asisten digital serbaguna</div></div></div>
+    <button class="primary" id="newChat">＋ Chat baru</button>
+    <div class="side-label">Menu fitur</div>
+    <nav class="tools">
+      <button class="tool active" data-view="chat"><span>💬</span>AI Chat</button>
+      <button class="tool" data-view="writer"><span>✍️</span>Penulis</button>
+      <button class="tool" data-view="summarizer"><span>📚</span>Ringkas teks</button>
+      <button class="tool" data-view="translator"><span>🌐</span>Penerjemah</button>
+      <button class="tool" data-view="ideas"><span>💡</span>Ide kreatif</button>
+      <button class="tool" data-view="tools"><span>🧮</span>Alat cepat</button>
+    </nav>
+    <div class="side-note"><b>ℹ️ Mode demo</b><br>Fitur teks berjalan langsung di browser. Untuk jawaban AI sungguhan, sambungkan backend/API AI yang aman.</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar"><strong id="pageTitle">AI Chat</strong><div class="status"><span class="dot"></span> Siap digunakan</div></div>
+    <section class="content" id="content">
+      <div class="welcome" id="welcome">
+        <div class="orb">✦</div>
+        <h1>Halo, apa yang ingin<br><span class="gradient">kamu buat hari ini?</span></h1>
+        <p>Teman digital untuk menulis, belajar, merangkum, menerjemahkan, mencari ide, dan menghitung.</p>
+        <div class="cards">
+          <button class="card" data-prompt="Bantu saya membuat jadwal belajar yang efektif"><span>📅</span><b>Buat rencana</b><small>Susun jadwal dan target harian</small></button>
+          <button class="card" data-prompt="Buatkan contoh teks deskripsi tentang pemain sepak bola favorit"><span>✍️</span><b>Tulis sesuatu</b><small>Deskripsi, cerita, tugas, dan caption</small></button>
+          <button class="card" data-prompt="Jelaskan kecerdasan buatan dengan bahasa sederhana"><span>🧠</span><b>Belajar hal baru</b><small>Penjelasan yang mudah dipahami</small></button>
+          <button class="card" data-prompt="Berikan 10 ide konten video kreatif"><span>🚀</span><b>Cari inspirasi</b><small>Ide kreatif untuk proyekmu</small></button>
+        </div>
+      </div>
+      <div id="feature"></div>
+      <div class="messages" id="messages"></div>
+    </section>
+    <div class="composer-wrap" id="composerWrap">
+      <form class="composer" id="chatForm">
+        <button class="iconbtn attach" type="button" title="Pilih file teks">＋<input type="file" id="fileInput" accept=".txt,.md,.csv,.json,.html,.css,.js"></button>
+        <textarea id="prompt" rows="1" placeholder="Tanyakan sesuatu..." required></textarea>
+        <button class="send" type="submit">Kirim ➤</button>
+      </form>
+      <div class="hint">Jangan masukkan kata sandi atau informasi pribadi yang sensitif.</div>
+    </div>
+    <footer>Nova AI · Terhubung melalui backend aman</footer>
+  </main>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const content = $('#content'), messages = $('#messages'), feature = $('#feature');
+const promptBox = $('#prompt');
+let currentView = 'chat';
+let uploadedText = '';
+
+function addMessage(text, who='ai') {
+  const row = document.createElement('div');
+  row.className = 'message ' + who;
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar';
+  avatar.textContent = who === 'user' ? '🙂' : '✦';
+  const wrap = document.createElement('div');
+  const name = document.createElement('div');
+  name.className = 'who';
+  name.textContent = who === 'user' ? 'KAMU' : 'NOVA AI · DEMO';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  wrap.append(name, bubble); row.append(avatar, wrap); messages.append(row);
+  row.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function simpleReply(q) {
+  const s = q.toLowerCase();
+  if (/halo|hai|hi\b|hello|selamat/.test(s)) return 'Halo juga! 👋 Saya Nova AI versi demo. Saya bisa membantu dengan tugas teks, ide, ringkasan, terjemahan sederhana, dan perhitungan. Pilih fitur di menu atau tulis permintaanmu.';
+  if (/siapa kamu|nama kamu/.test(s)) return 'Saya Nova AI, antarmuka asisten digital serbaguna yang dibuat menggunakan HTML, CSS, dan JavaScript.';
+  if (/jam|tanggal hari ini/.test(s)) return 'Tanggal dan waktu perangkat saat ini: ' + new Date().toLocaleString('id-ID') + '.';
+  if (/terima kasih|makasih/.test(s)) return 'Sama-sama! 😊 Ada hal lain yang ingin kamu kerjakan?';
+  if (/^berapa\s+/.test(s) || /^[\d\s()+\-*/%.]+$/.test(q.trim())) {
+    try {
+      if (/^[\d\s()+\-*/%.]+$/.test(q.trim())) {
+        const result = Function('"use strict";return (' + q.trim() + ')')();
+        if (typeof result === 'number' && Number.isFinite(result)) return 'Hasil perhitungan: ' + result;
+      }
+    } catch(e) {}
+  }
+  return 'Saya menerima pertanyaanmu:\n“' + q + '”\n\nIni masih mode demo, jadi saya belum bisa menghasilkan jawaban cerdas untuk semua pertanyaan. Untuk mengaktifkan AI sungguhan, hubungkan aplikasi ke API model AI melalui backend/server. Jangan menaruh API key rahasia langsung di file HTML.';
+}
+let conversation = [];
+async function sendQuestion(q) {
+  q = q.trim(); if (!q) return;
+  $('#welcome').style.display = 'none';
+  addMessage(q, 'user');
+  conversation.push({ role: 'user', content: q });
+  const loading = document.createElement('div');
+  loading.className = 'message';
+  loading.id = 'loadingMessage';
+  loading.innerHTML = '<div class="avatar">✦</div><div><div class="who">NOVA AI</div><div class="bubble">Sedang berpikir…</div></div>';
+  messages.append(loading);
+  loading.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const sendButton = document.querySelector('.send');
+  sendButton.disabled = true;
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: conversation.slice(-20) })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Permintaan gagal.');
+    conversation.push({ role: 'assistant', content: data.reply });
+    loading.remove();
+    addMessage(data.reply, 'ai');
+  } catch (err) {
+    loading.remove();
+    addMessage('Tidak bisa terhubung ke AI. Periksa koneksi, konfigurasi server, dan API key. Detail: ' + err.message, 'ai');
+    conversation.pop();
+  } finally {
+    sendButton.disabled = false;
+    promptBox.focus();
+  }
+}
+$('#chatForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const q = promptBox.value;
+  if (uploadedText) { sendQuestion(q + '\n\nIsi file yang dipilih:\n' + uploadedText.slice(0,12000)); uploadedText=''; }
+  else sendQuestion(q);
+  promptBox.value = '';
+});
+promptBox.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#chatForm').requestSubmit(); }
+});
+$('#newChat').addEventListener('click', () => {
+  messages.replaceChildren(); conversation = []; $('#welcome').style.display = 'block';
+  showView('chat');
+});
+document.querySelectorAll('[data-prompt]').forEach(b => b.addEventListener('click', () => {
+  promptBox.value = b.dataset.prompt; promptBox.focus();
+}));
+$('#fileInput').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 1024*1024) { alert('File terlalu besar. Pilih file teks di bawah 1 MB.'); e.target.value=''; return; }
+  uploadedText = await f.text();
+  promptBox.value = promptBox.value || 'Bantu saya memahami file ini.';
+  alert('File "' + f.name + '" siap disertakan pada pesan berikutnya.');
+});
+function showView(view) {
+  currentView = view;
+  document.querySelectorAll('.tool').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  $('#pageTitle').textContent = ({chat:'AI Chat',writer:'Penulis AI',summarizer:'Ringkas Teks',translator:'Penerjemah',ideas:'Ide Kreatif',tools:'Alat Cepat'})[view] || 'AI Chat';
+  feature.replaceChildren();
+  $('#welcome').style.display = view === 'chat' ? (messages.children.length ? 'none' : 'block') : 'none';
+  $('#composerWrap').style.display = view === 'chat' ? 'block' : 'none';
+  if (view === 'chat') return;
+  const panel = document.createElement('div'); panel.className = 'feature-panel';
+  const configs = {
+    writer:['✍️ Penulis AI','Buat draf teks, caption, deskripsi, atau cerita.','Topik atau instruksi','Contoh: Buat deskripsi pemain sepak bola dalam bahasa Inggris','Buat teks'],
+    summarizer:['📚 Ringkas Teks','Tempel teks panjang untuk mendapatkan ringkasan sederhana.','Teks yang ingin diringkas','Tempel teks di sini...','Ringkas teks'],
+    translator:['🌐 Penerjemah','Terjemahan demo berbasis frasa umum; bukan penerjemah AI lengkap.','Teks yang ingin diterjemahkan','Masukkan teks di sini...','Terjemahkan'],
+    ideas:['💡 Ide Kreatif','Temukan inspirasi untuk konten, bisnis, belajar, atau proyek.','Tema atau bidang','Contoh: ide konten game untuk TikTok','Cari ide'],
+    tools:['🧮 Alat Cepat','Hitung ekspresi matematika atau hitung jumlah kata.','Ekspresi matematika / teks','Contoh: (25 * 4) + 10','Proses']
+  };
+  const c = configs[view];
+  panel.innerHTML = '<h2>'+c[0]+'</h2><p style="color:var(--muted)">'+c[1]+'</p><div class="field"><label>'+c[2]+'</label><textarea id="featureInput" rows="5" placeholder="'+c[3].replace(/"/g,'&quot;')+'"></textarea></div><div class="action-row"><button class="primary" id="runFeature">'+c[4]+'</button><button class="iconbtn" id="clearFeature">Bersihkan</button></div><div id="featureResult" class="result" hidden></div>';
+  feature.append(panel);
+  $('#clearFeature').addEventListener('click',()=>{$('#featureInput').value='';$('#featureResult').hidden=true;});
+  $('#runFeature').addEventListener('click',()=>runFeature(view));
+}
+function runFeature(view) {
+  const input = $('#featureInput').value.trim(); if (!input) { $('#featureInput').focus(); return; }
+  let result = '';
+  if (view === 'summarizer') {
+    const sentences = input.match(/[^.!?]+[.!?]*/g) || [input];
+    result = sentences.slice(0, Math.max(1, Math.ceil(sentences.length*.35))).join(' ').trim();
+    result += '\n\nCatatan: ringkasan otomatis sederhana berdasarkan bagian awal teks.';
+  } else if (view === 'translator') {
+    const dictionary = {'hello':'halo','good morning':'selamat pagi','good night':'selamat malam','thank you':'terima kasih','how are you':'apa kabar','i love you':'aku cinta kamu','goodbye':'sampai jumpa','book':'buku','school':'sekolah','friend':'teman','beautiful':'indah/cantik','football':'sepak bola','my name is':'nama saya'};
+    result = input;
+    Object.keys(dictionary).sort((a,b)=>b.length-a.length).forEach(k=>{result=result.replace(new RegExp('\\b'+k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi'),dictionary[k]);});
+    result += '\n\nCatatan: kamus demo hanya mengenali beberapa frasa umum.';
+  } else if (view === 'ideas') {
+    result = 'Ide untuk "'+input+'":\n\n1. Buat panduan pemula langkah demi langkah.\n2. Buat daftar 5 fakta menarik.\n3. Buat tutorial singkat dengan contoh nyata.\n4. Bandingkan cara lama dan cara baru.\n5. Ceritakan pengalaman atau studi kasus.\n6. Buat kuis interaktif untuk audiens.\n7. Susun seri konten dari level mudah ke mahir.\n\nKembangkan ide yang paling cocok dengan tujuanmu.';
+  } else if (view === 'tools') {
+    if (/^[\d\s()+\-*/%.]+$/.test(input)) {
+      try { const n = Function('"use strict";return ('+input+')')(); result = Number.isFinite(n) ? 'Hasil: '+n : 'Ekspresi tidak menghasilkan angka yang valid.'; }
+      catch(e) { result = 'Ekspresi tidak valid. Contoh: (25 * 4) + 10'; }
+    } else {
+      const words = input.match(/\S+/g) || [];
+      result = 'Jumlah kata: '+words.length+'\nJumlah karakter: '+input.length+'\nJumlah karakter (tanpa spasi): '+input.replace(/\s/g,'').length;
+    }
+  } else if (view === 'writer') {
+    result = 'Draf awal berdasarkan topik "'+input+'":\n\nPendahuluan\n'+input+' merupakan topik yang menarik untuk dibahas. Ada banyak hal yang dapat dipelajari dan dikembangkan dari topik ini.\n\nIsi\nUntuk memahaminya lebih baik, kita dapat memulai dari dasar, melihat contoh nyata, lalu menyusun langkah-langkah yang sesuai dengan tujuan.\n\nPenutup\nDengan persiapan dan latihan yang konsisten, kita dapat mengembangkan pemahaman dan menghasilkan karya yang lebih baik.\n\nCatatan: ini templat contoh, bukan hasil generasi AI online.';
+  }
+  $('#featureResult').textContent = result;
+  $('#featureResult').hidden = false;
+}
+document.querySelectorAll('.tool').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+</script>
+</body>
+</html>
